@@ -1,0 +1,131 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout_Login.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+
+            $("#txtUsername").select();
+
+            $("#btnSubmit").click(function () {
+
+                if ($("#frmLogin").validateOnBlur().validate()) {
+                    var obj = new Object();
+                    obj.username = $("#txtUsername").val();
+                    obj.password = $("#txtPassword").val();
+                    console.log(obj.username)
+                    console.log(obj.password)
+
+
+                    $.post("@Url.Action("Login")", obj, function (data) {
+                        if (data == "") {
+                            $("#frmLogin").prepend("<div class='jquery_form_error_message' >" +
+                                "<strong >Form submission failed!</strong><br>" +
+                                "* Your username and/or passoword is incorrect or you don't have permission" +
+                                "</div>");
+                        }
+                        else {
+                            window.location = "@Url.Action("Index", "Home")";
+                        }
+                    });
+                }
+
+                return false;
+            });
+
+            $("#btnOpenF").click(function () {
+                $.post("@Url.Action("OpenF", "Member")", function (data) {
+
+                });
+            });
+
+        });
+    </script>
+}
+
+<style>
+    .form_space {
+        padding: 0px 20px 0px 20px;
+    }
+
+
+    .input_box {
+        margin: 10px 0px 10px 0px;
+    }
+
+    h1 {
+        font-size: 2.5em;
+        margin-bottom: 20px;
+    }
+
+    .btn_space {
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+
+
+    .jquery_form_error_message {
+        color: red;
+        font-size: 1.5em;
+        padding: 0px 20px 0px 20px;
+    }
+
+
+
+    .btn-success:hover {
+        background: #218838;
+    }
+
+
+
+
+    .remove.btn-success:focus {
+        background: #218838;
+    }
+
+
+
+
+
+
+
+
+</style>
+
+
+<section>
+
+    @using (Html.BeginForm("Login", "Member", FormMethod.Post, new { id = "frmLogin" }))
+    {
+
+
+        <div class="row ">
+
+
+
+            <div class="col-lg-12 col-xs-12 form-group-lg">
+                <div class="form_space input_box input-group">
+                    <span class="input-group-addon transparent"><span class="glyphicon glyphicon-user"></span></span>
+                    @Html.TextBox("txtUsername", null, new { id = "txtUsername", data_validation = "required", autocomplete = "off", @class = "form-control left-border-none", placeholder = "Username", @style = "font-size:15px" })
+                </div>
+            </div>
+            <div class="col-lg-12 col-xs-12 form-group-lg">
+                <div class="form_space input_box input-group">
+                    <span class="input-group-addon transparent"><span class="glyphicon glyphicon-lock"></span></span>
+                    @Html.Password("txtPassword", null, new { id = "txtPassword", data_validation = "required", @class = "form-control left-border-none", placeholder = "Password", @style = "font-size:15px" })
+                </div>
+            </div>
+            <div class="col-lg-12 col-xs-12">
+                <div class="form_space text-center">
+                    <br />
+                    <button type="submit" id="btnSubmit" class="btn btn-success btn-block btn_space" style="padding-top:6px;padding-bottom:6px"><span class="glyphicon glyphicon-log-in" style="margin-right:2px;"></span> <span style="font-size:18px;margin-right:2px;" >Login</span> </button>
+                </div>
+            </div>
+
+        </div>
+
+
+    }
+</section>

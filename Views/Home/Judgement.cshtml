@@ -1,0 +1,529 @@
+﻿@model IPQC.Models.IPQCHead
+
+<script>
+</script>
+<style>
+    h2 {
+        font-weight: bold;
+    }
+
+    
+
+    .is_active {
+        color: white !important;
+        background-color: #3a80b5;
+    }
+
+
+
+
+    span {
+        font-size: 14px;
+    }
+
+
+
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        word-break: break-all;
+        word-wrap: break-word;
+    }
+
+    td, th {
+        border: 1px solid #000;
+        padding: 8px;
+    }
+
+    .input_span {
+        font-weight: bold;
+    }
+
+
+    .noBorder {
+        border: none !important;
+    }
+
+    
+</style>
+
+<table>
+    <tr>
+        <td style="width:50%" class="noBorder">
+            <span class="input_span">Customer Name : </span>
+            @if (Model.Customer != null && Model.Customer != "")
+            {
+                <span class="input_span2">@Model.Customer</span>
+            }
+            else
+            {
+                <span class="input_span2">-</span>
+            }
+        </td>
+        <td style="width:30%" class="noBorder">
+            <span class="input_span">Project Owner : </span>
+            @foreach (var item in ViewBag.Engineer)
+            {
+                if (item.emp_code == Model.IssueBy)
+                {
+                    <span class="input_span2">@item.emp_fname @item.emp_lname.Substring(0, 1).</span>
+                }
+            }
+        </td>
+        <td style="width:20%" class="noBorder">
+            <span class="input_span" style="margin-left:10px">Date : </span><span class="input_span2">@ViewBag.Date</span>
+        </td>
+    </tr>
+    <tr>
+        <td style="width:50%" class="noBorder">
+            <span class="input_span">Dwg No : </span>
+            @if (Model.Drawingno != null && Model.Drawingno != "")
+            {
+                <span class="input_span2">@Model.Drawingno</span>
+            }
+            else
+            {
+                <span class="input_span2">-</span>
+            }
+            
+        </td>
+        <td style="width:30%" class="noBorder">
+            <span class="input_span">Type & Size : </span>
+            @if (Model.Type_Size != null && Model.Type_Size != "")
+            {
+                <span class="input_span2">@Model.Type_Size</span>
+            }
+            else
+            {
+                <span class="input_span2">-</span>
+            }
+
+        </td>
+    </tr>
+
+</table>
+
+<table>
+    <tr>
+        <td class="text-center" style="width:25%;border-bottom:0px;">
+            <span class="input_span">ITEM CODE</span>
+        </td>
+        <td class="text-center" style="width:25%;border-bottom:0px;">
+            <span class="input_span">RUBBER MATERIAL</span>
+        </td>
+        <td class="text-center" style="width:25%;border-bottom:0px;" colspan="3">
+            <span class="input_span">COURSE SELECTION</span>
+        </td>
+        <td class="text-center" style="width:25%;border-bottom:0px;">
+            <span class="input_span">LOT Q'TY</span>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="text-center" style="width:30%;border-top:0px;">
+            <span class="input_span2">@Model.ItemCode</span>
+        </td>
+        <td class="text-center" style="width:20%;border-top:0px;">
+            @if (Model.Material != null && Model.Material != "")
+            {
+                <span class="input_span2">@Model.Material</span>
+            }
+            else
+            {
+                <span class="input_span2">-</span>
+            }
+        </td>
+        @foreach (var item in ViewBag.Rank)
+        {
+            if (item.Id == Model.RankId)
+            {
+                <td class="center_text" style="width:10%;border-top:0px;border-left:0px;border-right:0px">
+
+                    <span class="input_span2" style="border:solid 1px #000;border-radius:360px;padding:0px 6px 0px 6px;">@item.Rank </span>
+                </td>
+            }
+            else
+            {
+                <td class="center_text" style="width:10%;border-top:0px;border-left:0px;border-right:0px">
+                    <span class="input_span2">@item.Rank</span>
+                </td>
+
+            }
+        }
+
+
+        <td class="text-center" style="width:20%;border-top:0px;">
+            <span class="input_span2">@Model.LotQty</span>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="1" style="border-bottom:0px;border-right:0px">
+            <span class="input_span">PURPOSE</span>
+        </td>
+        <td colspan="4" style="border-bottom:0px;border-left:0px">
+            <span class="input_span">PCR No : </span>
+            @if (Model.ReferenceNo != null && Model.ReferenceNo != "")
+            {
+                <span class="input_span2">@Model.ReferenceNo</span>
+            }
+            else
+            {
+                <span class="input_span2">-</span>
+            }
+
+        </td>
+        <td class="text-center" style="width:20%;border-bottom:0px;">
+            <span class="input_span">IPQC NO.</span>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="5" style="border-top:0px">
+            <span class="input_span2" style="margin-left:25px">@Model.Purpose</span>
+        </td>
+        <td colspan="1" style="border-top:0px" class="text-center">
+            <span class="input_span2">@Model.IPQCNo</span>
+        </td>
+
+    </tr>
+
+    <tr>
+        <td colspan="6">
+            <span class="input_span">Result</span><br />
+            @if (Model.QCResultFile != null)
+            {
+                <a href="@Url.Content("~/" + Model.QCResultFile)" target="_blank" style="text-decoration: underline;margin-left:25px"><span class="input_span2">Summary dimension result</span></a><br />
+
+            }
+            else
+            {
+                <br />
+            }
+            @if (Model.QCDefectiveResultFile != null)
+            {
+                <a href="@Url.Content("~/" + Model.QCDefectiveResultFile)" target="_blank" style="text-decoration: underline;margin-left:25px"><span class="input_span2">Summary  defective result </span></a><br />
+
+            }
+            else
+            {
+                <br />
+            }
+        </td>
+
+    </tr>
+
+    <tr>
+        <td class="text-center" style="vertical-align: middle;">
+            <span class="input_span">DEFECTIVE RATE:</span>
+        </td>
+        <td colspan="5">
+            @if (Model.QCDefectiveRate_Target != null)
+            {
+                <span class="input_span">TARGET. </span><span class="input_span2" style="text-decoration: underline;">@Model.QCDefectiveRate_Target</span><span class="input_span2"> Max</span><br />
+
+            }
+            else
+            {
+                <span class="input_span">TARGET. </span><span class="input_span2" style="text-decoration: underline;">&emsp;&emsp;&emsp;&emsp;</span><span class="input_span2"> Max</span><br />
+
+            }
+            @if (Model.QCDefectiveRate_Actual != null)
+            {
+                <span class="input_span">ACTUAL. </span><span class="input_span2" style="text-decoration: underline;">@Model.QCDefectiveRate_Actual</span><span class="input_span2"> %</span>
+
+            }
+            else
+            {
+                <span class="input_span">ACTUAL. </span><span class="input_span2" style="text-decoration: underline;">&emsp;&emsp;&emsp;&emsp;</span><span class="input_span2"> %</span>
+
+            }
+        </td>
+
+
+    </tr>
+
+    <tr>
+        <td class="text-center" style="vertical-align: middle;">
+            <span class="input_span">QC SECTION</span>
+        </td>
+        <td colspan="3">
+            <span class="input_span">COMMENT : </span>
+            @if (ViewBag.QCLogs != null)
+            {
+                if (ViewBag.QCLogs.Comment != null && ViewBag.QCLogs.Comment != "")
+                {
+                    <span class="input_span2">@ViewBag.QCLogs.Comment</span>
+                }
+                else
+                {
+                    <span class="input_span2">-</span>
+                }
+
+            }
+
+        </td>
+        <td colspan="2">
+            <span class="input_span">Name : </span>
+            @if (ViewBag.QCLogs != null)
+            {
+                <span class="input_span2">@ViewBag.QCName.emp_fname @ViewBag.QCName.emp_lname</span>
+            }
+
+            <br />
+            @if (ViewBag.QCLogs != null)
+            {
+                <span class="input_span">Date : </span>
+                <span class="input_span2">@ViewBag.QCEntryDate</span>
+            }
+
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+        <td class="text-center" style="vertical-align: middle;">
+            <span class="input_span">PRODUCTION SECTION</span>
+        </td>
+        <td colspan="3">
+            <span class="input_span">COMMENT : </span>
+
+            @if (ViewBag.ProductionLogs != null)
+            {
+                if (ViewBag.ProductionLogs.Comment != null && ViewBag.ProductionLogs.Comment != "")
+                {
+                    <span class="input_span2">@ViewBag.ProductionLogs.Comment</span>
+                }
+                else
+                {
+                    <span class="input_span2">-</span>
+                }
+
+            }
+
+
+        </td>
+        <td colspan="2">
+            <span class="input_span">Name : </span>
+            @if (ViewBag.ProductionLogs != null)
+            {
+                <span class="input_span2">@ViewBag.ProductionName.emp_fname @ViewBag.ProductionName.emp_lname</span>
+            }
+
+            <br />
+            <span class="input_span">Date : </span>
+            @if (ViewBag.ProductionLogs != null)
+            {
+                <span class="input_span2">@ViewBag.ProductionEntryDate</span>
+            }
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+        <td class="text-center" style="vertical-align: middle;">
+            <span class="input_span">PE. SECTION</span>
+        </td>
+        <td colspan="3">
+            <span class="input_span">COMMENT : </span>
+
+            @if (ViewBag.PELogs != null)
+            {
+                if (ViewBag.PELogs.Comment != null && ViewBag.PELogs.Comment != "")
+                {
+                    <span class="input_span2">@ViewBag.PELogs.Comment</span>
+                }
+                else
+                {
+                    <span class="input_span2">-</span>
+                }
+
+            }
+
+
+        </td>
+        <td colspan="2">
+            <span class="input_span">Name : </span>
+            @if (ViewBag.PELogs != null)
+            {
+                <span class="input_span2">@ViewBag.PEName.emp_fname @ViewBag.PEName.emp_lname</span>
+            }
+
+            <br />
+            <span class="input_span">Date : </span>
+            @if (ViewBag.PELogs != null)
+            {
+                <span class="input_span2">@ViewBag.PEEntryDate</span>
+            }
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+        <td class="text-center" style="vertical-align: middle;">
+            <span class="input_span">PP SECTION</span>
+        </td>
+        <td colspan="3">
+            <span class="input_span">COMMENT : </span>
+
+            @if (ViewBag.PPLogs != null)
+            {
+                if (ViewBag.PPLogs.Comment != null && ViewBag.PPLogs.Comment != "")
+                {
+                    <span class="input_span2">@ViewBag.PPLogs.Comment</span>
+                }
+                else
+                {
+                    <span class="input_span2">-</span>
+                }
+
+            }
+
+
+        </td>
+        <td colspan="2">
+            <span class="input_span">Name : </span>
+            @if (ViewBag.PPLogs != null)
+            {
+                <span class="input_span2">@ViewBag.PPName.emp_fname @ViewBag.PPName.emp_lname</span>
+            }
+
+            <br />
+            <span class="input_span">Date : </span>
+            @if (ViewBag.PPLogs != null)
+            {
+                <span class="input_span2">@ViewBag.PPEntryDate</span>
+            }
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+        <td class="text-center" style="vertical-align: middle;">
+            <span class="input_span">PLANNING SECTION</span>
+        </td>
+        <td colspan="3">
+            <span class="input_span">COMMENT : </span>
+
+            @if (ViewBag.PLNLogs != null)
+            {
+                if (ViewBag.PLNLogs.Comment != null && ViewBag.PLNLogs.Comment != "")
+                {
+                    <span class="input_span2">@ViewBag.PLNLogs.Comment</span>
+                }
+                else
+                {
+                    <span class="input_span2">-</span>
+                }
+
+            }
+
+
+        </td>
+        <td colspan="2">
+            <span class="input_span">Name : </span>
+            @if (ViewBag.PLNLogs != null)
+            {
+                <span class="input_span2">@ViewBag.PLNName.emp_fname @ViewBag.PLNName.emp_lname</span>
+            }
+
+            <br />
+            <span class="input_span">Date : </span>
+            @if (ViewBag.PLNLogs != null)
+            {
+                <span class="input_span2">@ViewBag.PLNEntryDate</span>
+            }
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+        <td class="text-center" style="vertical-align: middle;">
+            <span class="input_span">PROJECT OWNER</span>
+        </td>
+        <td colspan="3">
+            <span class="input_span">COMMENT : </span>
+
+            @if (ViewBag.EngMgrLogs != null)
+            {
+                if (ViewBag.EngMgrLogs.Comment != null && ViewBag.EngMgrLogs.Comment != "")
+                {
+                    <span class="input_span2">@ViewBag.EngMgrLogs.Comment</span>
+                }
+                else
+                {
+                    <span class="input_span2">-</span>
+                }
+
+            }
+
+
+        </td>
+        <td colspan="2">
+            <span class="input_span">Name : </span>
+            @if (ViewBag.EngMgrLogs != null)
+            {
+                <span class="input_span2">@ViewBag.EngMgrName.emp_fname @ViewBag.EngMgrName.emp_lname</span>
+            }
+
+            <br />
+            <span class="input_span">Date : </span>
+            @if (ViewBag.EngMgrLogs != null)
+            {
+                <span class="input_span2">@ViewBag.EngMgrEntryDate</span>
+            }
+
+        </td>
+
+    </tr>
+
+
+
+    <tr>
+        <td class="text-center" style="vertical-align: middle;">
+            <span class="input_span">CONCLUSION</span>
+        </td>
+        <td colspan="5">
+            @if (Model.EngMgrResult == "OK")
+            {
+                <input type="checkbox" onclick="return false;" checked />
+
+            }
+            else
+            {
+                <input type="checkbox" onclick="return false;" />
+            }
+            <span class="input_span2">Release for Normal Production</span><br />
+            @if (Model.EngMgrResult == "NG")
+            {
+                <input type="checkbox" onclick="return false;" checked />
+
+            }
+            else
+            {
+                <input type="checkbox" onclick="return false;" />
+            }
+            <span class="input_span2">Re-perform IPQC</span>
+
+        </td>
+
+
+    </tr>
+
+
+</table>
+<br />
+<div class="text-center">
+    <a href="@Url.Action("ViewPDF","Report")?id=@Model.IPQCNo" style="color:white;font-size:14px" class="btn_secondary btn btn_padding" target="_blank"><span class="glyphicon glyphicon glyphicon-save-file"></span> PDF </a>
+</div>

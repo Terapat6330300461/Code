@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
+
+    <title>@ViewBag.Title - IPQC</title>
+
+    @Styles.Render("~/Content/bootstrap")
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/jqGrid")
+    @Styles.Render("~/Content/themes/base/css")
+    @Styles.Render("~/Content/select2")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jqueryvalidator")
+    @Scripts.Render("~/bundles/jqgrid")
+    @Scripts.Render("~/bundles/select2")
+    @RenderSection("scripts", required: false)
+</head>
+
+
+<body>
+    <script>
+        $(function () {
+ 
+            var url = window.location;
+            $('ul.nav a[href="' + url + '"]').parent().addClass('active');
+            $('ul.nav a').filter(function () {
+                return this.href == url;
+            }).parent().addClass('active');
+
+
+            $('#hide_nav').click(function () {
+                if ($('#navbar').hasClass("collapse")) {
+                    $('#navbar').removeClass("collapse")
+                }
+                else {
+                    $('#navbar').addClass("collapse")
+                }
+            });
+        });
+    </script>
+    <style>
+        .shadow {
+            box-shadow: 0 4px 10px 0 rgb(164, 164, 164);
+            border-radius: 16px 16px 16px 16px;
+        }
+        .message_style {
+            margin-bottom: 0px !important;
+            font-size: 22px;
+            border-radius: 16px 16px 0px 0px;
+            padding: 20px 0px 20px 0px;
+        }
+
+        .group_style {
+            margin-top: 0px !important;
+            border-radius: 0px 0px 16px 16px !important;
+            background: white;
+            padding: 20px 20px 20px 20px;
+        }
+
+        .btn_secondary {
+            color: white;
+            background: #6c757d;
+        }
+
+            .btn_secondary:focus {
+                color: white;
+                background: #5c636a;
+            }
+
+            .btn_secondary:hover {
+                color: white;
+                background: #5c636a;
+            }
+
+        .navbar-custom {
+            background-color: #323232;
+        }
+
+        .btn_padding {
+            padding-left: 40px;
+            padding-right: 40px
+        }
+
+        .text_span {
+            font-weight: bold;
+        }
+
+        .red_star {
+            font-weight: bold;
+            color: red;
+        }
+
+        .form_space {
+            padding: 0px 20px 0px 20px;
+        }
+
+        .input_box {
+            margin: 5px 0px 10px 0px;
+        }
+
+        .jquery_form_error_message {
+            color: red;
+            padding: 0px 20px 0px 20px;
+        }
+
+        .file_text {
+            display: block;
+            max-width: 1000px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    </style>
+
+
+
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-custom">
+
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" id="hide_nav" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div class="navbar-brand">
+                    <img style="display: inline-block;width:60px;float:left" src="~/Content/Styles/images/logo.png" />
+                    <span style="color: #FFF;float:left;font-size:20px;margin-top:1px">IPQC</span>
+                </div>
+
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+
+                <ul class="nav navbar-nav">
+
+                    <li><a href="@Url.Action("Index", "Home")" id="home">Home Page</a></li>
+
+                    @if ((Session["IPQCUsrRole"].ToString() == "Engineer") && int.Parse(Session["IPQCUserLevel"].ToString()) <= 3)
+                    {
+                        <li><a href="@Url.Action("Create","Home")" id="issue">Issue IPQC</a></li>
+                    }
+
+                    @*<li><a href="@Url.Content("~/IPQC User Manual.pdf")" target="_blank" id="user_manual">User Manual</a></li>*@
+
+                </ul>
+
+                <form class="navbar-form navbar-right form-inline " method="post" action="@Url.Action("LogOff", "Member")">
+                    <span style="font-size: 14px; color: #fff;">Hello, @Session["IPQCUsrInfo"].ToString()&nbsp;&nbsp;</span>
+                    <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-log-out"></span> Logout</button>
+                </form>
+
+            </div>
+        </div>
+    </nav>
+    <div class="container" style="padding-top:70px;">
+        <div class="row shadow">
+
+            @if (ViewBag.Message != null)
+            {
+            <div class="text-center message_style" style="font-weight:bold;background:#6fa8d2;color:white;">
+                @*<div class="message message-Warning">*@
+                @ViewBag.Message
+            </div>
+                <div class="group_style">
+                    @RenderBody()
+                </div>
+            }
+        </div>
+    </div>
+    <div style="margin-top:60px;">
+        <div>
+            <div style="text-align: right;margin-right:20px;padding-bottom:4px;color:#000;font-size:12px">@Html.Partial("_FooterPartial")</div>
+        </div>
+    </div>
+
+</body>
+</html>

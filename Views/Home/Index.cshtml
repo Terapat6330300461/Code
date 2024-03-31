@@ -1,0 +1,773 @@
+﻿
+<link rel="stylesheet" href="~/Scripts/jquery-ui-themes-1.10.3/themes/redmond/jquery.ui.theme.css" />
+
+@section scripts{
+
+    <script type="text/javascript">
+
+
+        $(function () {
+
+            $("#txtItemCode").select2({
+                theme: "bootstrap",
+                placeholder: {
+                    id: "",
+                    text: "Select Item Code"
+                },
+                allowClear: true,
+                minimumInputLength: 1,
+                ajax: {
+                    url: '@Url.Action("GetItemCode", "Issue")',
+                    type: "Post",
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            term: params.term
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text,
+                                }
+                            })
+                        };
+                    },
+                }
+            });
+
+            $("#lnkHome").addClass("selected");
+
+            refreshGrid();
+
+
+            //เอาไว้ไม่ให้ refresh ข้อมูลซ้อน
+            var can_refresh = 0;
+
+            //refresh ตารางตอนกด Search
+            $("#btnSubmit").click(function () {
+
+                if (can_refresh == 1) {
+                    refreshGrid();
+                    return false;
+                }
+
+            });
+
+            //ปรับความกว้างตารางตอน resize
+            $(window).bind('resize', function () {
+                //set to 0 so grid does not continually grow
+                $('#tblGrid').setGridWidth(0);
+                //resize to our container's width
+                $('#tblGrid').setGridWidth($('#divGrid').width());
+            }).trigger('resize')
+
+            //refresh ตาราง
+            function refreshGrid() {
+                can_refresh = 0;
+                var qString = "IPQCNo=" + $("#txtIPQC").val() + "&itemCode=" + $("#txtItemCode").val() + "&TypeId=" + $("#TypeId").val() + "&StatusId=" + $("#StatusId").val() + "&Issuer=" + $("#Issuer").val() + "&JobNo=" + $("#txtJobNo").val() + "&PPDDL=" + $("#PPDDL").val() + "&QCDDL=" + $("#QCDDL").val() + "&ProductionDDL=" + $("#ProductionDDL").val() +  "&ENGDDL=" + $("#ENGDDL").val();
+                $("#divGrid").hide().fadeIn().html('<table id="tblGrid"></table><div id="pager"></div>');
+
+                $('#tblGrid').jqGrid({
+                    colNames: ['IPQC No', 'Comp. Lot', 'Purpose', 'Item Code', 'Type', 'Issue Date', 'Status', 'Issue By', 'PP', 'QC Group', ''],
+                    colModel: [
+                                    {
+                                        name: 'IPQCNo', index: 'IPQCNo', align: 'left', width: 140
+                                    },
+                                    {
+                                        name: 'LotQty', index: 'LotQty', align: 'right', width: 60
+                                    },
+                                    {
+                                        name: 'Purpose', index: 'Purpose', align: 'left'
+                                    },
+                                    {
+                                        name: 'ItemCode', index: 'ItemCode', align: 'left'
+                                    },
+                                    {
+                                        name: 'TypeId', index: 'TypeId', align: 'left'
+                                    },
+                                    {
+                                        name: 'EntryDate', index: 'EntryDate', align: 'center', width: 105, formatter: 'date', formatoptions: { srcformat: 'm/d/Y', newformat: 'd/m/Y' }
+                                    },
+                                    {
+                                        name: 'StatusId', index: 'StatusId', align: 'left'
+                                    },
+                                    {
+                                        name: 'IssueBy', index: 'IssueBy', align: 'left'
+                                    },
+                                    {
+                                        name: 'PP', index: 'PP', align: 'left'
+                                    },
+                                    {
+                                        name: 'QCGroup', index: 'QCGroup', align: 'left'
+                                    },
+                                    {
+                                        sortable: false, width: '120px', align: 'center', title: false
+                                    }
+
+                    ],
+
+                    sortname: 'IPQCNo',
+                    pagerpos: 'left',
+                    autowidth: true,
+                    caption: 'IPQC List',
+                    datatype: 'json',
+                    height: '100%',
+                    pager: '#pager',
+                    rowList: [15, 20, 30, 50, 100],
+                    rowNum: 15,
+                    url: '@Url.Action("GetIPQC", "Home")?' + qString,
+                    mtype: 'POST',
+                    rownumbers: true,
+                    rownumWidth: '50px',
+                    viewrecords: true,
+                    loadComplete: function (data) {
+                        if (data == 0) {
+                            alert("Your Session has been time out, please log in again !!");
+                            window.location = "@Url.Action("Login", "Member")";
+                        }
+                        can_refresh = 1;
+                    }
+                });
+
+                $(".ui-pg-input").css("width", "40px").css("height", "20px");
+
+                // Export Button
+                var sortColumnName = $('#tblGrid').jqGrid('getGridParam', 'sortname');
+                var sortOrder = $("#tblGrid").jqGrid('getGridParam', 'sortorder');
+                $(".ui-jqgrid-titlebar").append("<form class='ui-jqgrid-titlebar-close HeaderButton' style='right: 80px; display: inline;' method='post' action='@Url.Action("ExportList", "Home")?sidx=" + sortColumnName + "&sord=" + sortOrder + "&" + qString + "'><button type='submit' class='btn btn_secondary' style='padding:4px 10px 3px 10px'>Export</button></form>");
+            }
+
+            //สร้าง tab ในหน้า dialog detail, dialog edit
+            function generateTabs(ipqcNo, lot) {
+                var htm = '<div id="tabs-left">';
+
+                // Lot tabs
+                htm += '<ul class="overflow">';
+                for (var i = 1; i <= lot; i++) {
+                    htm += '<li><a href="#tabs-left' + i + '" class="tableft" data-Lot="' + i + '">Lot ' + i + '</a></li>';
+                }
+                htm += '</ul>';
+
+                // Lot tabs div
+                for (var i = 1; i <= lot; i++) {
+                    htm += '<div id="tabs-left' + i + '">';
+
+                    htm += '<div class="tabs-Detail" id="tabs-Detail' + i + '">';
+                    htm += '<ul>';
+                    htm += '<li><a href="@Url.Action("LotDetailsPartial")?IPQCNo=' + ipqcNo + '&Lot=' + i + '">IPQC</a></li>';
+                    @*htm += '<li><a href="@Url.Action("JobRoutePartial")?IPQCNo=' + ipqcNo + '&Lot=' + i + '">Job Route</a></li>';
+                    htm += '<li><a href="@Url.Action("JobStatusPartial")?IPQCNo=' + ipqcNo + '&Lot=' + i + '">Job Status</a></li>';*@
+                    htm += '</ul>';
+                    htm += '</div>';
+
+                    htm += '</div>';
+                }
+
+
+                htm += '</div>';
+
+                $('#dialog-Details').children().remove();
+                $('#dialog-Details').append(htm);
+
+                $("#tabs-Detail1").tabs({
+                    load: function () {
+                        $(".enCal").datepicker({
+                            dateFormat: "dd-mm-yy",
+                            onSelect: function () {
+                                if ($(this).attr("data-Unique") == "startDate") {
+                                    var date = new Date($(this).val().substring(6), $(this).val().substring(3, 5) - 1, $(this).val().substring(0, 2));
+                                    var addTwoMonths = new Date(new Date(date).setMonth(date.getMonth() + 2));
+                                    $(this).parent().next().next().children().first().val((
+                                        (addTwoMonths.getDate() < 10 ? "0" : "") + addTwoMonths.getDate() + "-" +
+                                        ((addTwoMonths.getMonth() + 1) < 10 ? "0" : "") + (addTwoMonths.getMonth() + 1) + "-" +
+                                        addTwoMonths.getFullYear()));
+                                }
+                            }
+                        });
+                    }
+                });
+                $("#tabs-left").tabs();
+
+                if (!$('#dialog-Details').dialog('isOpen')) {
+                    $.get("@Url.Action("GetStatus", "Home")", "ipqcNo=" + ipqcNo, function (data) {
+                        $("span.ui-dialog-title").text('IPQC No. ' + ipqcNo + ", Status: " + data);
+                        $('#dialog-Details').dialog('open');
+                    });
+                }
+            }
+
+            //ใช้ set จำนวน lot
+            $("#dialog-LotQty").dialog({
+                autoOpen: false,
+                width: 300,
+                minHeight: 200,
+                modal: true,
+                buttons: {
+                    "Save": function () {
+                        $.post("@Url.Action("SetLotQty")?IPQCNo=" + $("#txtLotQty").attr("data-IPQCNo") + "&lot=" + $("#txtLotQty").val(), null, function (data) {
+                            if (data != '') {
+
+                                refreshGrid();
+                                generateTabs(data.IPQCNo, data.lotQty);
+                                $("#dialog-LotQty").dialog("close");
+                            }
+                            else {
+                                alert("Save Error!");
+                            }
+                        });
+                    }
+                }
+            });
+
+            //จอ dialog detail, dialog edit
+            $("#dialog-Details").dialog({
+                autoOpen: false,
+                autoHeight: true,
+                width: 900,
+                minHeight: 400,
+                modal: true,
+            });
+
+            @*$("#dialog-Message").dialog({
+                autoOpen: false,
+                autoHeight: true,
+                width: 300,
+                minHeight: 200,
+                modal: true,
+                buttons: {
+                    "Send Message": function () {
+                        $.post("@Url.Action("SendMessage", "Home")", "id=" + $("#btnMessage").attr("data-QC") + "&message=" + $("#txtMessage").val(), function (data) {
+                            if (data > 0) {
+                                alert("Send Message Success!");
+                                $("#dialog-Message").dialog("close");
+                                $("#dialog-Details").dialog("close");
+                            }
+                            else if(data == -1){
+                                alert("Session Expire, You need to re-login!");
+                                window.location = "@Url.Action("Login", "Member")";
+                            }
+                            else {
+                                alert("Send Message Fail!");
+                            }
+                        });
+                    },
+                    close: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });*@
+
+            $("#divGrid").on("click", ".lnkDetails", function () {
+                var $btn = $(this);
+                $.get("@Url.Action("GetLotQty")?IPQCNo=" + $btn.attr("data-IPQCNo"), function (data) {
+                    if (data == -1) {
+                        window.location = "@Url.Action("LogOff", "Member")";
+                    }
+                    else if (data == 0) {
+                        if ("@ViewBag.UsrRole" == "Engineer" || ($btn.attr("data-PP") != $("#lblCurrentUser").text())) {
+                            alert("Data not ready (PP not update yet)");
+                        }
+                        else if ($btn.attr("data-PP") == $("#lblCurrentUser").text()) {
+                            $("#txtLotQty").attr("data-ipqcno", $btn.attr("data-IPQCNo"));
+                            $("#txtLotQty").select();
+                            $("#dialog-LotQty").dialog("open");
+                        }
+                    }
+                    else {
+                        generateTabs($btn.attr("data-IPQCNo"), $btn.attr("data-IPQCLotQty"));
+                    }
+                });
+
+                return false;
+            });
+
+            $("#dialog-Details").on("click", ".tableft", function () {
+                $("#tabs-Detail" + $(this).attr("data-Lot")).tabs({
+                    load: function () {
+                        $(".enCal").datepicker({ dateFormat: "dd-mm-yy" });
+                    }
+                });
+            });
+
+            // Dialog Section
+            $(document).on("click", ".btnSave", function () {
+                var lotQty = $(this).attr("data-LotQty");
+                var qstring = new Object();
+                qstring.IPQCNo = $(this).attr("data-IPQCNo");
+                qstring.IPQCLot = $(this).attr("data-Lot");
+                var validate = 1;
+
+                $(this).parent().parent().find('input[type=text]').each(function () {
+
+                    if ($(this).val() == '') {
+                        alert("Please fill data!");
+                        validate = 0;
+                        return false;
+                    }
+                    else {
+                        if ($(this).attr("data-Unique") == "startDate") {
+                            qstring.startDate = $(this).val();
+                        }
+                        else if ($(this).attr("data-Unique") == "expireDate") {
+                            qstring.expireDate = $(this).val();
+                        }
+                        else if ($(this).attr("data-Unique") == "JobNo") {
+                            qstring.jobNo = $(this).val();
+                        }
+                        else if ($(this).attr("data-Unique") == "TagNo") {
+                            qstring.tagNo = $(this).val();
+                        }
+                    }
+                });
+
+                if (validate == 0)
+                    return false;
+
+                if (qstring.startDate == null)
+                    qstring.startDate = "";
+
+                $.post("@Url.Action("InsertLot", "Home")", qstring, function (data) {
+                    if (data == "1" || data == "3") {
+                        if (data == "1")
+                            alert("Save Success!");
+                        else
+                        {
+                            alert("You have already success updated all jobs of this IPQC!");
+                            $('#dialog-Details').dialog('close');
+                            refreshGrid();
+                        }
+
+
+                        if (qstring.IPQCLot == 1) {
+                            generateTabs(qstring.IPQCNo, lotQty);
+                        }
+                    }
+                    else if (data == "2") {
+                        alert("Edit Success!");
+                        if (qstring.IPQCLot == 1) {
+                            generateTabs(qstring.IPQCNo, lotQty);
+                        }
+                    }
+                    else {
+                        alert("Save Fail!\nyou need to save 1st lot first");
+                    }
+                });
+
+                return false;
+            });
+
+            // Cancel Lot
+            $(document).on("click", ".btnCancelLot", function () {
+                if (window.confirm("Are you sure to Cancel Lot ?")) {
+                    var qstring = new Object();
+                    qstring.IPQCNo = $(this).attr("data-IPQCNo");
+                    qstring.IPQCLot = $(this).attr("data-Lot");
+
+                    $.post("@Url.Action("CancelLot", "Home")", qstring, function (data) {
+                        if (data == 1) {
+                            alert("Cancel Lot Success!");
+                        }
+                        else if (data == -1) {
+                            alert("You have exeed idle time, please re-log in!");
+                            window.location = "@Url.Action("LogOff", "Member")";
+                        }
+                        else {
+                            alert("Cancel Lot Fail!");
+                        }
+                    });
+                }
+                else
+                    return false;
+            });
+
+            // Close button
+            $(document).on("click", ".btnclose", function () {
+                if (window.confirm("Are you sure to Close IPQC ?")) {
+                    $.post("@Url.Action("CloseIPQC")", "IPQCNo=" + $(this).attr("data-IPQCNo"), function (data) {
+                        if (data == 1) {
+                            //alert("Close IPQC Success");
+                            $('#dialog-Details').dialog('close');
+                            refreshGrid();
+                        }
+                        else {
+                            alert("Close IPQC Error!");
+                        }
+                    });
+                }
+            });
+
+            @*// QC Judge button
+            $(document).on("click", ".btnQCJudge", function () {
+                if ($(this).attr("id") == "btnMessage") {
+                    $("#dialog-Message").dialog("open");
+                }
+                else {
+                    $.post("@Url.Action("QCJudge", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&Action=" + $(this).attr("data-Action"), function (data) {
+                        if (data == 1) {
+                            alert("Action Success");
+                            $('#dialog-Details').dialog('close');
+                            refreshGrid();
+                        }
+                        else {
+                            alert("Action Error!");
+                        }
+                    });
+                }
+            });*@
+
+            $(document).on("click", ".btnSRUpload", function () {
+                if ($("#SRFile").val() == '' || $("#SRFile2").val() == '' || $("#qcTarget").val() == '' || $("#qcActual").val() == '') {
+                    alert("Please fill data!");
+                    return false;
+                }
+                //else {
+                //    alert("Action Success");
+                //}
+            });
+
+            $("#dialog-Comment").dialog({
+                autoOpen: false,
+                autoHeight: true,
+                width: 300,
+                minHeight: 200,
+                modal: true,
+                buttons: {
+                    "Send Comment": function () {
+                        $.post("@Url.Action("TellIssuer", "Home")", "id=" + $("#btnEngCheckNG").attr("data-IPQCNo") + "&comment=" + $("#txtComment").val(), function (data) {
+                            if (data > 0) {
+                                $("#dialog-Comment").dialog("close");
+                                $("#dialog-Details").dialog("close");
+                            }
+                            else if(data == -1){
+                                alert("Session Expire, You need to re-login!");
+                                window.location = "@Url.Action("Login", "Member")";
+                            }
+                            else {
+                                alert("Tell Issuer Fail!");
+                            }
+                        });
+                    },
+                    close: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#dialog-Cancel").dialog({
+                autoOpen: false,
+                autoHeight: true,
+                width: 300,
+                minHeight: 200,
+                modal: true,
+                buttons: {
+                    "OK": function () {
+                        $.post("@Url.Action("CancelIPQC", "Home")", "IPQCNo=" + $("#btnCancel").attr("data-IPQCNo") + "&CancelReason=" + $("#txtCancel").val(), function (data) {
+                            if (data > 0) {
+                                $("#dialog-Cancel").dialog("close");
+                                $("#dialog-Details").dialog("close");
+                                refreshGrid();
+                            }
+                            else if(data == -1){
+                                alert("Session Expire, You need to re-login!");
+                                window.location = "@Url.Action("Login", "Member")";
+                            }
+                            else {
+                                alert("Cancel Fail!");
+                            }
+                        });
+                    },
+                    close: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $(document).on("click", ".btnEngCheck", function () {
+                if ($(this).attr("id") == "btnEngCheckNG") {
+                    $("#dialog-Comment").dialog("open");
+                }
+                else {
+                $.post("@Url.Action("EngApprove", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&Action=" + $(this).attr("data-Action"), function (data) {
+
+                        $('#dialog-Details').dialog('close');
+                        refreshGrid();
+
+                    });
+                }
+
+            });
+
+            $(document).on("click", ".btnPPConfirm", function () {
+                $.post("@Url.Action("PPConfirm", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") , function (data) {
+
+                    $('#dialog-Details').dialog('close');
+                    refreshGrid();
+
+                });
+
+            });
+
+            $(document).on("click", "#btnCancel", function () {
+                $("#dialog-Cancel").dialog("open");
+            });
+
+        });
+
+    </script>
+}
+
+<style>
+    html, body {
+        position: relative
+    }
+
+
+    .input_margin {
+        margin: 15px 0px 0px 0px;
+    }
+
+
+    .information:hover {
+        color: #004365 !important;
+        text-decoration: underline !important;
+    }
+
+    .btn_table {
+        color: white !important;
+        padding: 2px 4px 2px 4px;
+        width: 50px;
+        margin-bottom: 5px;
+        font-size: 10px;
+    }
+
+    .ui-dialog {
+        z-index: 10000;
+    }
+</style>
+
+<section>
+
+    <div class="col-lg12 col-xs-12">
+        <div class="col-lg3 col-xs-3">
+            <span class="text_span input_margin">IPQC No.</span>
+            @Html.TextBox("txtIPQC", null, new { @class = "form-control input_box" })
+        </div>
+        <div class="col-lg3 col-xs-3">
+            <span class="text_span input_margin">Job No.</span>
+            @Html.TextBox("txtJobNo", null, new { @class = "form-control input_box" })
+        </div>
+        <div class="col-lg3 col-xs-3">
+            <span class="text_span">Item Code</span><br />
+            @*@Html.TextBoxFor(model => model.ItemCode, new { id = "txtIemCode", data_validation = "required", @class = "form-control input_box" })*@
+            <div class="input_box">
+                <select name="ItemCode" id="txtItemCode" class="form-control input_box" style="width:100%">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg3 col-xs-3">
+            <span class="text_span input_margin">IPQC Type</span>
+            <select name="TypeId" id="TypeId" class="form-control input_box">
+                <option value="">-- Select --</option>
+                @foreach (var item in ViewBag.Type)
+                {
+                    <option value="@item.Id">@item.Detail</option>
+                }
+            </select>
+
+        </div>
+    </div>
+
+    <div class="col-lg12 col-xs-12">
+        <div class="col-lg6 col-xs-6">
+            <span class="text_span input_margin">Issuer</span>
+            <select name="Issuer" id="Issuer" class="form-control input_box">
+                <option value="">-- Select --</option>
+                @foreach (var item in ViewBag.Issuer)
+                {
+                    if (item.emp_code == Session["IPQCUsr"].ToString() && int.Parse(Session["IPQCUserLevel"].ToString()) == 3)
+                    {
+                        <option value="@item.emp_code" selected>@item.group_name, @item.emp_fname @item.emp_lname</option>
+                    }
+                    else
+                    {
+                        <option value="@item.emp_code">@item.group_name, @item.emp_fname @item.emp_lname</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-lg6 col-xs-6">
+            <span class="text_span input_margin">Production Planning</span>
+            <select name="PPDDL" id="PPDDL" class="form-control input_box">
+                <option value="">-- Select --</option>
+                @foreach (var item in ViewBag.PP)
+                {
+                    if (item.emp_code == Session["IPQCUsr"].ToString())
+                    {
+                        <option value="@item.emp_code" selected>@item.group_name, @item.emp_fname @item.emp_lname</option>
+                    }
+                    else
+                    {
+                        <option value="@item.emp_code">@item.group_name, @item.emp_fname @item.emp_lname</option>
+                    }
+                }
+            </select>
+
+        </div>
+    </div>
+
+    <div class="col-lg12 col-xs-12">
+        <div class="col-lg6 col-xs-6">
+            <span class="text_span input_margin">Quality Control</span>
+            <select name="QCDDL" id="QCDDL" class="form-control input_box">
+                <option value="">-- Select --</option>
+                @foreach (var item in ViewBag.QCGroup)
+                {
+                    if (item.group_id == int.Parse(Session["UserGroupId"].ToString()))
+                    {
+                        <option value="@item.group_id" selected>@item.group_name</option>
+                    }
+                    else
+                    {
+                        <option value="@item.group_id">@item.group_name</option>
+                    }
+                }
+            </select>
+
+        </div>
+
+
+
+        <div class="col-lg6 col-xs-6">
+            <span class="text_span input_margin">Production Group</span>
+            <select name="ProductionDDL" id="ProductionDDL" class="form-control input_box">
+                <option value="">-- Select --</option>
+                @foreach (var item in ViewBag.ProductionGroup)
+                {
+                    if (item.group_id == int.Parse(Session["UserGroupId"].ToString()))
+                    {
+                        <option value="@item.group_id" selected>@item.group_name</option>
+                    }
+                    else
+                    {
+                        <option value="@item.group_id">@item.group_name</option>
+                    }
+                }
+            </select>
+
+        </div>
+    </div>
+
+    <div class="col-lg12 col-xs-12">
+
+
+
+
+        <div class="col-lg6 col-xs-6">
+            <span class="text_span input_margin">Engineering Group</span>
+            <select name="ENGDDL" id="ENGDDL" class="form-control input_box">
+                <option value="">-- Select --</option>
+                @foreach (var item in ViewBag.EngGroup)
+                {
+                    if (item.group_id == int.Parse(Session["UserGroupId"].ToString()) && Session["IPQCUsrRole"].ToString() == "Engineer" && (int.Parse(Session["IPQCUserLevel"].ToString()) == 3 || int.Parse(Session["IPQCUserLevel"].ToString()) == 4))
+                    {
+                        <option value="@item.group_id" selected>@item.group_name</option>
+                    }
+                    else
+                    {
+                        <option value="@item.group_id">@item.group_name</option>
+                    }
+                }
+            </select>
+
+        </div>
+
+
+
+
+
+        <div class="col-lg6 col-xs-6">
+            <span class="text_span input_margin">Status</span>
+            <select name="StatusId" id="StatusId" class="form-control input_box">
+                <option value="">-- Select --</option>
+                @foreach (var item in ViewBag.Status)
+                {
+                    if (Session["IPQCUsrRole"].ToString() == "PP" && item.Id == 1)
+                    {
+                        <option value="@item.Id" selected>@item.Detail</option>
+                    }
+                    else if (Session["IPQCUsrRole"].ToString() == "QC" && int.Parse(Session["IPQCUserLevel"].ToString()) <= 4 && item.Id == 3)
+                    {
+                        <option value="@item.Id" selected>@item.Detail</option>
+                    }
+                    else if (Session["IPQCUsrRole"].ToString() == "QC" && int.Parse(Session["IPQCUserLevel"].ToString()) == 5 && item.Id == 4)
+                    {
+                        <option value="@item.Id" selected>@item.Detail</option>
+                    }
+                    else if (Session["IPQCUsrRole"].ToString() == "Production" && int.Parse(Session["IPQCUserLevel"].ToString()) == 5 && item.Id == 11)
+                    {
+                        <option value="@item.Id" selected>@item.Detail</option>
+                    }
+
+
+                    else if (Session["IPQCUsrRole"].ToString() == "PP" && int.Parse(Session["IPQCUserLevel"].ToString()) == 5 && item.Id == 13)
+                    {
+                        <option value="@item.Id" selected>@item.Detail</option>
+                    }
+                    else if (Session["IPQCUsrRole"].ToString() == "PLN" && int.Parse(Session["IPQCUserLevel"].ToString()) == 5 && item.Id == 14)
+                    {
+                        <option value="@item.Id" selected>@item.Detail</option>
+                    }
+                    else if (item.Id == 0 || item.Id == 2)
+                    {
+                        
+                    }
+                    else
+                    {
+                        <option value="@item.Id">@item.Detail</option>
+                    }
+                }
+            </select>
+        </div>
+
+    </div>
+
+    <div class="col-lg12 col-xs-12">
+        <br />
+        <div class="col-lg5 col-xs-5"></div>
+        <div class="col-lg2 col-xs-2"><button type="submit" name="btnSubmit" id="btnSubmit" class="btn btn-block btn_secondary">Search</button></div>
+        <div class="col-lg5 col-xs-5"></div>
+    </div>
+
+</section>
+
+<div style="clear:both"></div>
+<br />
+<br />
+
+<section>
+    <div id="divGrid"></div>
+</section>
+
+@*<div id="dialog-LotQty" title="Please Input Lot Qty">
+    Lot Qty <input type="text" id="txtLotQty" style="width: 100px" />
+</div>
+<div id="dialog-Details" title="IPQC Details"></div>*@
+@*<div id="dialog-Message" title="Message to staff">
+        Message<br />
+        <textarea rows="5" name="txtMessage" id="txtMessage"></textarea>
+    </div>*@
+
+@*<div id="dialog-Comment" title="Comment to Engineer">
+    Comment<br />
+    <textarea rows="5" name="txtComment" id="txtComment"></textarea>
+</div>*@
+
+@*<div id="dialog-Cancel" title="Cancel IPQC">
+    Please enter cancel reason<br />
+    <textarea rows="5" name="txtCancel" id="txtCancel"></textarea>
+</div>*@

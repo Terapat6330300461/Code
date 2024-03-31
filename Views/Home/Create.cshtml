@@ -1,0 +1,551 @@
+﻿@model IPQC.Models.IPQCHead
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+
+            $("#txtItemCode").select2({
+                theme: "bootstrap",
+                placeholder: {
+                    id: "",
+                    text: "Select Item Code"
+                },
+                allowClear: true,
+                minimumInputLength: 1,
+                ajax: {
+                    url: '@Url.Action("GetItemCode", "Issue")',
+                    type: "Post",
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            term: params.term
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text,
+                                }
+                            })
+                        };
+                    },
+                }
+            });
+
+            $("#txtPCR").select2({
+                theme: "bootstrap",
+                placeholder: {
+                    id: "",
+                    text: "Select PCR No."
+                },
+                allowClear: true,
+                minimumInputLength: 1,
+                ajax: {
+                    url: '@Url.Action("GetPCR", "Issue")',
+                    type: "Post",
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            term: params.term
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text,
+                                }
+                            })
+                        };
+                    },
+                }
+            });
+
+            $("#txtNewItem").select2({
+                theme: "bootstrap",
+                placeholder: {
+                    id: "",
+                    text: "Select New Item No."
+                },
+                allowClear: true,
+                minimumInputLength: 1,
+                ajax: {
+                    url: '@Url.Action("GetNewItem", "Issue")',
+                    type: "Post",
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            term: params.term
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text,
+                                }
+                            })
+                        };
+                    },
+                }
+            });
+
+
+            $("#txtCustomer").select2({
+                theme: "bootstrap",
+                placeholder: "Select Customer",
+                allowClear: true,
+                minimumInputLength: 1,
+                ajax: {
+                    url: '@Url.Action("GetCustomer", "Issue")',
+                    type: "Post",
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            term: params.term
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text,
+                                }
+                            })
+                        };
+                    },
+                }
+
+            });
+
+            //$("#txtPLN").change(function () {
+            //    var selectedValue = $('#txtPLN').val().split('|');
+            //    $("#txtPLNIncharge").val(selectedValue[0]);
+            //    $("#txtPLNGroupId").val(selectedValue[1]);
+            //    console.log(selectedValue)
+            //});
+
+            $("#txtItemCode").on("select2:unselecting", function (e) {
+                $("#txtItemCode").empty()
+
+                $('#txtPCR').select2('close');
+                $('#txtNewItem').select2('close');
+                $('#txtCustomer').select2('close');
+            });
+
+            $("#txtPCR").on("select2:unselecting", function (e) {
+                $("#txtPCR").empty()
+
+                $('#txtItemCode').select2('close');
+                $('#txtNewItem').select2('close');
+                $('#txtCustomer').select2('close');
+            });
+
+            $("#txtNewItem").on("select2:unselecting", function (e) {
+                $("#txtNewItem").empty()
+
+                $('#txtItemCode').select2('close');
+                $('#txtPCR').select2('close');
+                $('#txtCustomer').select2('close');
+            });
+
+            $("#txtCustomer").on("select2:unselecting", function (e) {
+                $("#txtCustomer").empty()
+
+                $('#txtItemCode').select2('close');
+                $('#txtPCR').select2('close');
+                $('#txtNewItem').select2('close');
+            });
+
+            $("#txtItemCode").on("select2:selecting", function (e) {
+                $(".requireditem_code").next().find(".select2-selection__rendered").parent().css("border-color", "#cccccc");
+            });
+
+
+            $("#lnkIssue").addClass("selected");
+
+            $("#btnQtySample").click(function () {
+                //if ($("#txtQtySample").val() == "") {
+                //    $("#txtQtySample").select();
+                //    return false;
+                //}
+                //var txt = "- ติด  IPQC CARD คู่กับ JOB TAG ตลอดเวลาเพื่อบ่งชี้ LINE ที่ทำ IPQC";
+                //txt += "\n- Production ส่งมอบ Sample " + $("#txtQtySample").val() + " Pcs. และเก็บ Defective Samples ทั้งหมด (Curing, Screen) ให้กับ QC Section";
+                //txt += "\n- กรณีที่ยังไม่ครบ lot การประเมินแต่เกิน 2 เดือนแล้ว นับจากวันที่ Start ให้ QC ทำการสรุปผลได้เลย";
+                //txt += "\n- Production บันทึกของเสียใน Initial Product Patrol Inspection Record and copy all record sheet to QC";
+
+                var txt = "In the case that the IPQC has not completed Lot IPQC but has exceeded the specified period of 2 months";
+                txt += "\nfrom the start of the first LOT, the QC can conclude the results.";
+                if ($("#txtQtySample").val() != "") {
+                    txt += "\n" + $("#txtQtySample").val();
+                }
+
+                $("#txtNote").val(txt);
+            });
+            window.onscroll = function (e) {
+                $('#txtItemCode').select2('close');
+                $('#txtPCR').select2('close');
+                $('#txtNewItem').select2('close');
+                $('#txtCustomer').select2('close');
+            }
+
+            $("#drawingfile").on("change", function () {
+                var max_size = 1024 * 1024 * 10;
+                var filename = this.files[0].name;
+                if (filename.length > 140) {
+                    alert("ชื่อไฟล์ยาวเกินไป!");
+                    this.value = "";
+                    return false;
+                }
+                if (filename.indexOf('#') > -1) {
+                    alert("ชื่อไฟล์ห้ามมีเครื่องหมาย #");
+                    this.value = "";
+                    return false;
+                }
+                if (this.files[0].size  > max_size) {
+                    alert("ขนาดไฟล์ใหญ่เกินไป!");
+                    this.value = "";
+                    return false;
+                }
+            });
+
+
+            $("#btnSubmit").click(function () {
+                if ($(".requireditem_code").val() == null) {
+                    $(".requireditem_code").next().find(".select2-selection__rendered").parent().css("border-color", "red");
+                } else {
+                    $(".requireditem_code").next().find(".select2-selection__rendered").parent().css("border-color", "#cccccc");
+                }
+
+                if ($(".requiredpcr").val() == null) {
+                    $(".requiredpcr").next().find(".select2-selection__rendered").parent().css("border-color", "red");
+                } else {
+                    $(".requiredpcr").next().find(".select2-selection__rendered").parent().css("border-color", "#cccccc");
+                }
+                if ($(".requirednewitem").val() == null) {
+                    $(".requirednewitem").next().find(".select2-selection__rendered").parent().css("border-color", "red");
+                } else {
+                    $(".requirednewitem").next().find(".select2-selection__rendered").parent().css("border-color", "#cccccc");
+                }
+                if ($(".requiredcustomer").val() == null) {
+                    $(".requiredcustomer").next().find(".select2-selection__rendered").parent().css("border-color", "red");
+                } else {
+                    $(".requiredcustomer").next().find(".select2-selection__rendered").parent().css("border-color", "#cccccc");
+                }
+
+
+                return $("#frmInsert").validateOnBlur().validate();
+            });
+        });
+    </script>
+}
+
+
+
+
+
+
+@using (Html.BeginForm("IssueIPQC", "Home", FormMethod.Post, new { id = "frmInsert", enctype = "multipart/form-data" }))
+{
+    <section>
+        <div class="row">
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">IPQC No.</span><br />
+                    @Html.TextBoxFor(model => model.IPQCNo, new { id = "txtIPQC", data_validation = "required", @class = "form-control input_box", @readonly = "readonly", @Value = "IPQC" + @DateTime.Now.ToString("yyMM") + "-XXX" })
+
+                </div>
+
+                <div class="col-lg-6 col-xs-6">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Purpose</span><br />
+                    @Html.TextBoxFor(model => model.Purpose, new { id = "txtpurpose", data_validation = "required", @class = "form-control input_box" })
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Item Code</span><br />
+                    @*@Html.TextBoxFor(model => model.ItemCode, new { id = "txtIemCode", data_validation = "required", @class = "form-control input_box" })*@
+                    <div class="input_box">
+                        <select name="ItemCode" id="txtItemCode" data-validation="required" class="form-control input_box  requireditem_code" style="width:100%"></select>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">PCR No.</span><br />
+                    @*@Html.TextBoxFor(model => model.ReferenceNo, new { id = "txtPCR", data_validation = "required", @class = "form-control input_box" })*@
+                    <div class="input_box">
+                        <select name="ReferenceNo" id="txtPCR" @*data-validation="required"*@ class="form-control input_box @*requiredpcr*@" style="width:100%">
+                            @*<option value=""></option>*@
+                            @*@foreach (var item in ViewBag.PCR)
+                                {
+                                    <option value="@item.pcr_id">@item.pcr_id</option>
+                                }*@
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">New Item No.</span><br />
+                    @*@Html.TextBoxFor(model => model.NewItemNo, new { id = "txtNewItem", data_validation = "required", @class = "form-control input_box" })*@
+                    <div class="input_box">
+                        <select name="NewItemNo" id="txtNewItem" @*data-validation="required"*@ class="form-control input_box @*requirednewitem*@" style="width:100%"></select>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">Customer Name</span><br />
+                    @*@Html.TextBoxFor(model => model.Customer, new { id = "txtCustomer", data_validation = "required", @class = "form-control input_box" })*@
+                    <div class="input_box">
+                        <select name="Customer" id="txtCustomer" @*data-validation="required"*@ class="form-control input_box @*requiredcustomer*@" style="width:100%;"></select>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">Part No.</span><br />
+                    @Html.TextBoxFor(model => model.PartNo, new { id = "txtPartNumber", @*data_validation = "required",*@@class = "form-control input_box"
+                })
+                </div>
+
+            </div>
+
+            <div class="col-lg-12 col-xs-12">
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">Drawing No.</span><br />
+                    @Html.TextBoxFor(model => model.Drawingno, new { id = "txtDrawingNo", @*data_validation = "required",*@@class = "form-control input_box"
+                })
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">Defective Rate</span><br />
+                    @Html.TextBoxFor(model => model.DefectiveRate, new { id = "txtDefRate", @*data_validation = "required",*@@class = "form-control input_box"
+                })
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Defective Target</span><br />
+                    @Html.TextBoxFor(model => model.DefectiveTarget, new { id = "txtDefTarget", data_validation = "required", @class = "form-control input_box" })
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">Type & Size</span><br />
+                    @Html.TextBoxFor(model => model.Type_Size, new { id = "txtTypeSize", @*data_validation = "required",*@@class = "form-control input_box"
+                })
+                </div>
+
+            </div>
+
+            <div class="col-lg-12 col-xs-12">
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">Material</span><br />
+                    @Html.TextBoxFor(model => model.Material, new { id = "txtMaterial", @*data_validation = "required",*@@class = "form-control input_box"
+                })
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+
+                    <span class=red_star>*</span>
+                    <span class="text_span">Sampling</span><br />
+                    @Html.TextBoxFor(model => model.Sampling, new { id = "txtSampling", data_validation = "required", @class = "form-control input_box" })
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Type</span><br />
+                    <select name="TypeId" id="txtTypeId" data-validation="required" class="form-control input_box">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.Type)
+                        {
+                            <option value="@item.Id">@item.Detail</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Rank</span><br />
+                    <select name="RankId" id="txtRank" data-validation="required" class="form-control input_box">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.Rank)
+                        {
+                            <option value="@item.Id">@item.Rank , @item.LotQty lots</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            @*<div class="col-lg-12 col-xs-12">
+
+                    <div class="col-lg-3 col-xs-3">
+                        <span class="text_span">Mold Code</span><br />
+                        @Html.TextBoxFor(model => model.Drawingno, new { id = "txtMoldCode", data_validation = "required", @class = "form-control input_box" })
+                    </div>
+
+                    <div class="col-lg-3 col-xs-3">
+                        <span class="text_span">Mold No.</span><br />
+                        @Html.TextBoxFor(model => model.Drawingno, new { id = "txtMoldNo", data_validation = "required", @class = "form-control input_box" })
+                    </div>
+
+                    <div class="col-lg-3 col-xs-3">
+
+                    </div>
+
+                    <div class="col-lg-3 col-xs-3">
+
+                    </div>
+
+                </div>*@
+
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-6 col-xs-6">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Engineer</span><br />
+                    <select name="Engineer" id="txtEngineer" data-validation="required" class="form-control input_box">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.Engineer)
+                        {
+                            if (item.emp_code == Session["IPQCUsr"].ToString())
+                            {
+                                <option value="@item.emp_code" selected="selected">@item.group_name, @item.emp_fname @item.emp_lname</option>
+                            }
+                            else
+                            {
+                                <option value="@item.emp_code">@item.group_name, @item.emp_fname @item.emp_lname</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-6 col-xs-6">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Production Planning</span><br />
+                    <select name="PP" id="txtPP" data-validation="required" class="form-control input_box">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.PP)
+                        {
+                            <option value="@item.emp_code">@item.group_name, @item.emp_fname @item.emp_lname</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-6 col-xs-6">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Quality Control</span><br />
+                    <select name="QCGroup" id="txtQCGroup" data-validation="required" class="form-control input_box">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.QCGroup)
+                        {
+                            <option value="@item.group_id">@item.group_name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-6 col-xs-6">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Production</span><br />
+                    <select name="production_groupid" id="txtProductionGroupId" data-validation="required" class="form-control input_box">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.ProductionGroup)
+                        {
+
+                            <option value="@item.group_id">@item.group_name</option>
+
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-6 col-xs-6">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Process Engineer</span><br />
+                    <select name="PE" id="txtPE" data-validation="required" class="form-control input_box">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.PE)
+                        {
+                            <option value="@item.emp_code">@item.group_name, @item.emp_fname @item.emp_lname</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-6 col-xs-6">
+                    <span class=red_star>*</span>
+                    <span class="text_span">Planning</span><br />
+                    @*<input type="hidden" name="PLN_incharge" id="txtPLNIncharge" value="" />
+                        <input type="hidden" name="PLN_groupid" id="txtPLNGroupId" value="" />*@
+                    <select name="PLN_groupid" id="PLN_groupid" data-validation="required" class="form-control input_box">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.PLN)
+                        {
+                            <option value="@item.group_id">@item.group_name</option>
+                        }
+                    </select>
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-6 col-xs-6">
+                    <span class="text_span">&nbsp;Attach Inspection Spec </span>
+                    <span style="color: red">(File not more than 10MB) ชื่อไฟล์ห้ามมี เครื่องหมาย #</span>
+                    <input type="file" id="drawingfile" name="drawingfile" class="form-control  input_box" style="padding-top: 0px; padding-left: 0px;" />
+                    <br />
+                </div>
+
+            </div>
+
+            <div class="col-lg-12 col-xs-12">
+
+                <div class="col-lg-3 col-xs-3">
+                    <span class="text_span">Note</span><br />
+                    <input type="text" id="txtQtySample" class="form-control input_box" />
+                </div>
+                <div class="col-lg-6 col-xs-6">
+                    <br />
+                    <button type="button" id="btnQtySample" class="btn btn-success input_box">Add Text</button>
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-12 col-sm-12">
+                    @Html.TextAreaFor(model => model.Note, new { id = "txtNote", @*data_validation = "required",*@@class = "form-control input_box"
+                })
+                </div>
+
+            </div>
+
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-12 col-sm-12" style="text-align: center">
+              
+                        <br />
+                        <button type="submit" id="btnSubmit" class="btn btn-primary btn_padding">Issue IPQC</button>
+                  
+
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+    </section>
+
+
+}

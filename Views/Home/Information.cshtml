@@ -1,0 +1,1278 @@
+﻿@model IPQC.Models.IPQCHead
+<link rel="stylesheet" href="~/Scripts/jquery-ui-themes-1.10.3/themes/redmond/jquery.ui.theme.css" />
+<script type="text/javascript">
+    $(function () {
+
+        // QC Judge button
+        $(document).on("click", "#btnQCJudge", function () {
+ 
+            $.post("@Url.Action("QCJudge", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&QCComment=" + $('#QCComment').val(), function (data) {
+                if (data == 1) {
+                    //alert("Action Success");
+                    window.location = "@Url.Action("Index", "Home")";
+                }
+                else {
+                    alert("Action Error!");
+                }
+            });
+            
+        });
+
+         //btnProductionConcern
+         $(document).on("click", "#btnProductionConcern", function () {
+       
+             $.post("@Url.Action("ProductionConcern", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&ProductionComment=" + $('#ProductionComment').val(), function (data) {
+                    if (data == 1) {
+                        //alert("Action Success");
+                        window.location = "@Url.Action("Index", "Home")";
+                    }
+                    else {
+                        alert("Action Error!");
+                    }
+                });
+            
+        });
+
+                 //btnProductionConcern
+         $(document).on("click", "#btnPEConcern", function () {
+       
+             $.post("@Url.Action("PEConcern", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&PEComment=" + $('#PEComment').val() + "&Action=" + $(this).attr("data-Action"), function (data) {
+                    if (data == 1) {
+                        //alert("Action Success");
+                        window.location = "@Url.Action("Index", "Home")";
+                    }
+                    else {
+                        alert("Action Error!");
+                    }
+                });
+            
+        });
+
+        $(document).on("click", "#btnPPConcern", function () {
+       
+             $.post("@Url.Action("PPConcern", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&PPComment=" + $('#PPComment').val(), function (data) {
+                    if (data == 1) {
+                        //alert("Action Success");
+                        window.location = "@Url.Action("Index", "Home")";
+                    }
+                    else {
+                        alert("Action Error!");
+                    }
+                });
+            
+        });
+        $(document).on("click", "#btnPLNConcern", function () {
+       
+            $.post("@Url.Action("PLNConcern", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&PLNComment=" + $('#PLNComment').val(), function (data) {
+                    if (data == 1) {
+                        //alert("Action Success");
+                        window.location = "@Url.Action("Index", "Home")";
+                    }
+                    else {
+                        alert("Action Error!");
+                    }
+                });
+            
+        });
+        $(document).on("click", "#btnEngReview", function () {
+       
+            $.post("@Url.Action("EngReview", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&EngComment=" + $('#EngComment').val(), function (data) {
+                    if (data == 1) {
+                        //alert("Action Success");
+                        window.location = "@Url.Action("Index", "Home")";
+                    }
+                    else {
+                        alert("Action Error!");
+                    }
+                });
+            
+        });
+        // Mgr Close button
+        $(document).on("click", ".btnMgrClose", function () {
+          
+            $.post("@Url.Action("CloseIPQC", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") + "&Action=" + $(this).attr("data-Action") + "&EngMgrComment=" + $('#EngMgrComment').val(), function (data) {
+                if (data == 1) {
+                    //alert("Action Success");
+                    window.location = "@Url.Action("Index", "Home")";
+                }
+                else {
+                    alert("Action Error!");
+                }
+            });
+            
+        });
+
+        $("#dialog-Cancel").dialog({
+                autoOpen: false,
+                autoHeight: true,
+                width: 300,
+                minHeight: 200,
+                modal: true,
+                buttons: {
+                    "OK": function () {
+                        $.post("@Url.Action("CancelIPQC", "Home")", "IPQCNo=" + $("#btnCancel").attr("data-IPQCNo") + "&CancelReason=" + $("#txtCancel").val(), function (data) {
+                            if (data > 0) {
+                                $("#dialog-Cancel").dialog("close");
+                                window.location = "@Url.Action("Index", "Home")";
+                            }
+                            else if(data == -1){
+                                alert("Session Expire, You need to re-login!");
+                                window.location = "@Url.Action("Login", "Member")";
+                            }
+                            else {
+                                alert("Cancel Fail!");
+                            }
+                        });
+                    },
+                    close: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+
+        $(document).on("click", "#btnCancel", function () {
+            $("#dialog-Cancel").dialog("open");
+        });
+
+        $("#dialog-Comment").dialog({
+            autoOpen: false,
+            autoHeight: true,
+            width: 300,
+            minHeight: 200,
+            modal: true,
+            buttons: {
+                "Send Comment": function () {
+                    $.post("@Url.Action("TellIssuer", "Home")", "id=" + $("#btnEngCheckNG").attr("data-IPQCNo") + "&comment=" + $("#txtComment").val(), function (data) {
+                        if (data > 0) {
+                            $("#dialog-Comment").dialog("close");
+                            window.location = "@Url.Action("Index", "Home")";
+                        }
+                        else if(data == -1){
+                            alert("Session Expire, You need to re-login!");
+                            window.location = "@Url.Action("Login", "Member")";
+                        }
+                        else {
+                            alert("Tell Issuer Fail!");
+                        }
+                    });
+                },
+                close: function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+
+        $(document).on("click", ".btnEngCheck", function () {
+            if ($(this).attr("id") == "btnEngCheckNG") {
+                $("#dialog-Comment").dialog("open");
+            }
+            else {
+            $.post("@Url.Action("EngApprove", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo"), function (data) {
+
+                    window.location = "@Url.Action("Index", "Home")";
+
+                });
+            }
+
+        });
+
+        
+        $(document).on("click", ".btnPPConfirm", function () {
+            $.post("@Url.Action("PPConfirm", "Home")", "IPQCNo=" + $(this).attr("data-IPQCNo") , function (data) {
+
+                window.location = "@Url.Action("Index", "Home")";
+
+            });
+
+        });
+
+        $(document).on("click", ".btnSRUpload", function () {
+            if ($("#SRFile").val() == '' || $("#SRFile2").val() == '' || $("#qcTarget").val() == '' || $("#qcActual").val() == '') {
+                alert("Please fill data!");
+                return false;
+            }
+        });
+    });
+</script>
+<style>
+
+
+
+
+    h2 {
+        font-weight: bold;
+    }
+    .btn_space {
+        margin-left: 15px
+    }
+
+ 
+
+    .btn_top_space{
+        margin-top:10px;
+    }
+
+    #blue_table {
+        border: 1px solid #a6c9e2;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #blue_table td, #blue_table th {
+            padding: 8px;
+        }
+
+        #blue_table tr {
+            background-color: #feffff;
+        }
+
+            #blue_table tr:hover {
+                color: #006090;
+                background-color: #daeaf7;
+            }
+
+        #blue_table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            font-weight: bold;
+            background-color: #6fa8d2;
+            color: white;
+        }
+
+    .grid_table td, .grid_table th {
+        border: 1px solid #a6c9e2;
+    }
+
+</style>
+<div class="row">
+    <div class="col-lg-12 col-xs-12">
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">IPQC No.</span><br />
+
+            @Html.TextBoxFor(model => model.IPQCNo, new { id = "txtIPQC", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+        </div>
+
+        <div class="col-lg-6 col-xs-6">
+            <span class="text_span">Purpose</span><br />
+            @Html.TextBoxFor(model => model.Purpose, new { id = "txtpurpose", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Item Code</span><br />
+            @Html.TextBoxFor(model => model.ItemCode, new { id = "txtItemCode", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-12 col-xs-12">
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">PCR No.</span><br />
+            @if (Model.ReferenceNo != null)
+            {
+                @Html.TextBoxFor(model => model.ReferenceNo, new { id = "txtPCR", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <input class="form-control input_box" readonly="readonly" value="-" />
+            }
+
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">New Item No.</span><br />
+            @if (Model.NewItemNo != null)
+            {
+                @Html.TextBoxFor(model => model.NewItemNo, new { id = "txtNewItem", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <input class="form-control input_box" readonly="readonly" value="-" />
+            }
+
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Customer Name</span><br />
+            @if (Model.Customer != null)
+            {
+                @Html.TextBoxFor(model => model.Customer, new { id = "txtCustomer", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <input class="form-control input_box" readonly="readonly" value="-" />
+            }
+
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Part No.</span><br />
+            @if (Model.PartNo != null)
+            {
+                @Html.TextBoxFor(model => model.PartNo, new { id = "txtPartNumber", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <input class="form-control input_box" readonly="readonly" value="-" />
+            }
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-12 col-xs-12">
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Drawing No.</span><br />
+            @if (Model.Drawingno != null)
+            {
+                @Html.TextBoxFor(model => model.Drawingno, new { id = "txtDrawingNo", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <input class="form-control input_box" readonly="readonly" value="-" />
+            }
+
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Defective Rate</span><br />
+            @if (Model.DefectiveRate != null)
+            {
+                @Html.TextBoxFor(model => model.DefectiveRate, new { id = "txtDefRate", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <input class="form-control input_box" readonly="readonly" value="-" />
+            }
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Defective Target</span><br />
+            @Html.TextBoxFor(model => model.DefectiveTarget, new { id = "txtDefTarget", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Type & Size</span><br />
+            @if (Model.Type_Size != null)
+            {
+                @Html.TextBoxFor(model => model.Type_Size, new { id = "txtTypeSize", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <input class="form-control input_box" readonly="readonly" value="-" />
+            }
+        </div>
+
+    </div>
+
+    <div class="col-lg-12 col-xs-12">
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Material</span><br />
+            @if (Model.Material != null)
+            {
+                @Html.TextBoxFor(model => model.Material, new { id = "txtMaterial", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <input class="form-control input_box" readonly="readonly" value="-" />
+            }
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Sampling</span><br />
+            @Html.TextBoxFor(model => model.Sampling, new { id = "txtSampling", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Type</span><br />
+
+            @foreach (var item in ViewBag.Type)
+            {
+                if (item.Id == Model.TypeId)
+                {
+                    <input name="TypeId" id="txtTypeId" data-validation="required" class="form-control input_box" value="@item.Detail" readonly />
+                }
+
+
+            }
+
+        </div>
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Rank</span><br />
+
+            @foreach (var item in ViewBag.Rank)
+            {
+                if (item.Id == Model.RankId)
+                {
+
+                    <input name="RankId" id="txtRank" data-validation="required" class="form-control input_box" value="@item.Rank , @item.LotQty lots" readonly />
+                }
+
+            }
+
+        </div>
+    </div>
+
+
+
+    <div class="col-lg-12 col-xs-12">
+        <div class="col-lg-6 col-xs-6">
+            <span class="text_span">Engineer</span><br />
+
+            @foreach (var item in ViewBag.Engineer)
+            {
+                if (item.emp_code == Model.Engineer)
+                {
+                    <input name="RankId" id="txtRank" data-validation="required" class="form-control input_box" value="@item.group_name, @item.emp_fname @item.emp_lname" readonly />
+
+                }
+
+            }
+        </div>
+        <div class="col-lg-6 col-xs-6">
+            <span class="text_span">Production Planning</span><br />
+
+            @foreach (var item in ViewBag.PP)
+            {
+                if (item.emp_code == Model.PP)
+                {
+
+                    <input name="PP" id="txtPP" data-validation="required" class="form-control input_box" value="@item.group_name, @item.emp_fname @item.emp_lname" readonly />
+                }
+
+
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-12 col-xs-12">
+        <div class="col-lg-6 col-xs-6">
+            <span class="text_span">Quality Control</span><br />
+
+            @foreach (var item in ViewBag.QCGroup)
+            {
+                if (item.group_id == Model.QCGroup)
+                {
+                    <input name="QCGroup" id="txtQCGroup" data-validation="required" class="form-control input_box" value="@item.group_name" readonly />
+                }
+
+
+            }
+
+        </div>
+        <div class="col-lg-6 col-xs-6">
+            <span class="text_span">Production</span><br />
+
+
+            @foreach (var item in ViewBag.ProductionGroup)
+            {
+                if (item.group_id == Model.production_groupid)
+                {
+                    <input name="production_groupid" id="txtProductionGroupId" data-validation="required" class="form-control input_box" value="@item.group_name" readonly />
+                }
+
+
+            }
+
+        </div>
+    </div>
+
+    <div class="col-lg-12 col-xs-12">
+        <div class="col-lg-6 col-xs-6">
+            <span class="text_span">Process Engineer</span><br />
+
+            @foreach (var item in ViewBag.PE)
+            {
+                if (item.emp_code == Model.PE)
+                {
+                    <input name="txtPE" id="txtPE" data-validation="required" class="form-control input_box" value="@item.group_name, @item.emp_fname @item.emp_lname" readonly />
+
+                }
+
+            }
+
+
+        </div>
+        <div class="col-lg-6 col-xs-6">
+            <span class="text_span">Planning</span><br />
+
+            @foreach (var item in ViewBag.PLN)
+            {
+                if (item.group_id == Model.PLN_groupid)
+                {
+                    <input name="txtPLN" id="txtPLN" data-validation="required" class="form-control input_box" value="@item.group_name" readonly />
+
+                }
+
+            }
+
+        </div>
+
+
+
+    </div>
+
+    <div class="col-lg-12 col-xs-12">
+
+        <div class="col-lg-6 col-xs-6">
+
+            @if (Model.Inspectionspec_filename != null)
+            {
+
+                <span class="text_span">Attach Inspection Spec : </span><a href="@Url.Content("~/" + Model.Inspectionspec_pathname)" target="_blank" class="form-control input_box file_text" readonly><i class="glyphicon glyphicon-file"></i>@Model.Inspectionspec_filename</a>
+            }
+            else
+            {
+                <span class="text_span">Attach Inspection Spec : </span><br />
+                <span class="form-control input_box file_text" readonly>-</span>
+
+            }
+
+            <br />
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-12 col-xs-12">
+
+        <div class="col-lg-3 col-xs-3">
+            <span class="text_span">Note</span><br />
+        </div>
+
+    </div>
+
+
+
+    <div class="col-lg-12 col-xs-12">
+        <div class="col-lg-12 col-xs-12">
+            @if (Model.Note != null)
+            {
+                @Html.TextAreaFor(model => model.Note, new { id = "txtNote", data_validation = "required", @class = "form-control input_box", @readonly = "readonly" })
+
+            }
+            else
+            {
+                <textarea class="form-control input_box" readonly="readonly">-</textarea>
+
+            }
+        </div>
+
+
+    </div>
+
+    @if (ViewBag.stepCount >= 4)
+    {
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Dimension and Defective Summary
+                </h2>
+
+                <hr>
+
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Result : </span><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-6 col-xs-6">
+                <a href="@Url.Content("~/" + Model.QCResultFile)" target="_blank" style="text-decoration: underline;" class="form-control input_box file_text" readonly><i class="glyphicon glyphicon-file"></i><span class="input_span2">Summary dimension result</span></a><br />
+            </div>
+            <div class="col-lg-6 col-xs-6">
+                <a href="@Url.Content("~/" + Model.QCDefectiveResultFile)" target="_blank" style="text-decoration: underline;" class="form-control input_box file_text" readonly><i class="glyphicon glyphicon-file"></i><span class="input_span2">Summary  defective result </span></a><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Defective Rate : </span>
+
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+
+            <div class="col-lg-6 col-xs-6">
+                <br />
+                <span class="text_span">Target. </span><br />
+                <input name="QCTarget" id="txtQCTarget" data-validation="required" class="form-control input_box" value="@Model.QCDefectiveRate_Target Max" readonly />
+            </div>
+            <div class="col-lg-6 col-xs-6">
+                <br />
+                <span class="text_span">Actual. </span><br />
+                <input name="QCActual" id="txtQCActual" data-validation="required" class="form-control input_box" value="@Model.QCDefectiveRate_Actual %" readonly />
+            </div>
+        </div>
+    }
+
+    @if (ViewBag.lots != null)
+    {
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Lot Detail
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+        <div class="col-12 col-sm-12">
+            <div class="col-lg-12 col-xs-12">
+                <table id="blue_table" class="grid_table">
+                    <thead>
+                        <tr>
+                            <th width="10%">Lot</th>
+                            <th width="15%">Job No</th>
+                            <th width="15%">Tag No</th>
+                            <th width="10%">Job Lot</th>
+                            <th width="10%">Start Date</th>
+                            <th width="10%">Expire Date</th>
+                            <th width="15%">Job Status</th>
+                            <th width="15%">Process Status</th>@*เพิ่มprocess*@
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in ViewBag.lots)
+                        {
+
+                        <tr>
+
+                            <td>Lot @item.Lot</td>
+
+                            @if (item.JobNo != null)
+                            {
+                                <td>@item.JobNo</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+
+
+                            @if (item.TagNo != null)
+                            {
+                                <td>@item.TagNo</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+
+
+                            @if (item.job_Lot != null)
+                            {
+                                <td>@item.job_Lot</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+
+                            @if (item.StartDate != null)
+                            {
+                                <td>@item.StartDate.ToString("dd-MM-yyyy")</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+
+                            @if (item.ExpireDate != null)
+                            {
+                                <td>@item.ExpireDate.ToString("dd-MM-yyyy")</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+
+                            @if (item.Job_STS != null)
+                            {
+                                <td>@item.Job_STS</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+
+                            @if (item.Process_STS != null)
+                            {
+
+                                <td>@item.Process_STS</td>
+                         
+                            }
+                            else
+                            {
+                                <td>N/A</td>
+                            }
+
+
+                        </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+
+
+    @if (Model.StatusId == 10 &&
+        (Model.EngMgr == Session["IPQCUsr"].ToString()
+        || (ViewBag.eng_dept == int.Parse(Session["UserDeptId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 6)
+        || (ViewBag.eng_plant == int.Parse(Session["UserPlantId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 7)
+        ))
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Engineer Manager Approvement
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-12" style="text-align: center">
+            <button type="button" class="btnEngCheck btn btn-success btn_padding" id="btnEngCheckOK" data-IPQCNo="@Model.IPQCNo">OK</button>
+            <button type="button" class="btnEngCheck btn btn-danger btn_padding btn_space" id="btnEngCheckNG" data-IPQCNo="@Model.IPQCNo">NG</button>
+        </div>
+
+    }
+
+    @if (Model.StatusId == 1
+        && Session["IPQCUsrRole"].ToString() == "PP"
+        && Model.PP == Session["IPQCUsr"].ToString())
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Production Planning Confirm
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-12" style="text-align: center">
+            <button class="btnPPConfirm btn btn-success btn_padding btn_top_space" data-IPQCNo="@Model.IPQCNo">Confirm</button>
+        </div>
+
+    }
+
+
+
+    @if (Model.StatusId == 3 &&
+        Session["IPQCUsrRole"].ToString() == "QC"
+        && Model.QCGroup == int.Parse(Session["UserGroupId"].ToString())
+        && (int.Parse(Session["IPQCUserLevel"].ToString()) <= 4))
+    {
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Dimension and Defective Summary
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+
+
+
+        <form id="frmAttach" method="post" action="@Url.Action("AttachSummaryResult", "Home")" enctype="multipart/form-data">
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-6 col-xs-6">
+                    <span class="red_star">*</span>
+                    <span class="text_span">Summary dimension result</span><br />
+                    <input type="hidden" name="hddIPQCNo" value="@Model.IPQCNo" />
+                    <input type="file" name="SRFile" id="SRFile" class="form-control input_box" style="padding-top: 0px; padding-left: 0px;" />
+                    <br />
+                </div>
+                <div class="col-lg-6 col-xs-6">
+                    <span class="red_star">*</span>
+                    <span class="text_span">Summary defective result</span><br />
+                    <input type="file" name="SRFile2" id="SRFile2" class="form-control input_box" style="padding-top: 0px; padding-left: 0px;" />
+                    <br />
+
+                </div>
+
+
+            </div>
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-12 col-xs-12">
+                    <span class="text_span">Defective Rate:</span>
+                </div>
+            </div>
+            <div class="col-lg-12 col-xs-12">
+                <div class="col-lg-6 col-xs-6">
+                    <br />
+                    <span class="red_star">*</span>
+                    <span class="text_span">Target.</span>
+                    <input type="text" name="qcTarget" id="qcTarget" class="form-control input_box" value="@Model.DefectiveTarget" />
+                    <br />
+                </div>
+                <div class="col-lg-6 col-xs-6">
+                    <br />
+                    <span class="red_star">*</span>
+                    <span class="text_span">Actual.</span>
+                    <input type="text" name="qcActual" id="qcActual" class="form-control input_box" value="" />
+                    <br />
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-12" style="text-align: center">
+                <button type="submit" class="btnSRUpload btn btn-success btn_padding " id="btnSRUpload">Submit</button>
+            </div>
+        </form>
+
+
+    }
+
+
+
+
+    @if ((Model.StatusId == 4)
+        && ((Model.QCGroup == int.Parse(Session["UserGroupId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 5)
+        || (ViewBag.qc_dept == int.Parse(Session["UserDeptId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 6)
+        || (ViewBag.qc_plant == int.Parse(Session["UserPlantId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 7))
+        )
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    QC Section
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Comment : </span><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <textarea id="QCComment" name="QCComment" class="form-control input_box"></textarea>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12" style="text-align: center">
+            <button type="submit" class="btn btn-success btn_padding btn_top_space" id="btnQCJudge" data-IPQCNo="@Model.IPQCNo">Approve</button>
+        </div>
+
+    }
+
+
+
+
+
+    @if ((Model.StatusId == 11)
+        && ((Model.production_groupid == int.Parse(Session["UserGroupId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 5)
+            || (ViewBag.production_dept == int.Parse(Session["UserDeptId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 6)
+            || (ViewBag.production_plant == int.Parse(Session["UserPlantId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 7))
+        )
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Production Section
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Comment : </span><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <textarea id="ProductionComment" name="ProductionComment" class="form-control input_box"></textarea>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12" style="text-align: center">
+            <button type="submit" class="btn btn-success btn_padding btn_top_space" id="btnProductionConcern" data-IPQCNo="@Model.IPQCNo">Approve</button>
+        </div>
+
+    }
+
+
+
+
+
+    @if ((Model.StatusId == 12)
+        && ((Model.PE == Session["IPQCUsr"].ToString())
+            || (Model.PE_Group_id == int.Parse(Session["UserGroupId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 5)
+            || (ViewBag.pe_dept == int.Parse(Session["UserDeptId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 6)
+            || (ViewBag.pe_plant == int.Parse(Session["UserPlantId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 7))
+        )
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Process Engineering Section
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Comment : </span><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <textarea id="PEComment" name="PEComment" class="form-control input_box">@if (ViewBag.PELogs != null)
+                    {
+                        @ViewBag.PELogs.Comment
+                    }</textarea>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12" style="text-align: center">
+            @if (Model.PE == Session["IPQCUsr"].ToString())
+            {
+                <button type="submit" class="btn btn-success btn_padding btn_top_space" id="btnPEConcern" data-IPQCNo="@Model.IPQCNo" data-Action="OK">OK</button>
+
+            }
+            else
+            {
+                <button type="submit" class="btn btn-success btn_padding btn_top_space" id="btnPEConcern" data-IPQCNo="@Model.IPQCNo" data-Action="Approve">Approve</button>
+            }
+
+        </div>
+
+    }
+
+
+
+
+    @if ((Model.StatusId == 13)
+        && ((ViewBag.pp_group == int.Parse(Session["UserGroupId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 5)
+        || (ViewBag.pp_dept == int.Parse(Session["UserDeptId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 6)
+        || (ViewBag.pp_plant == int.Parse(Session["UserPlantId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 7))
+        )
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Production Planning Section
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Comment : </span><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <textarea id="PPComment" name="PPComment" class="form-control input_box"></textarea>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12" style="text-align: center">
+            <button type="submit" class="btn btn-success btn_padding btn_top_space" id="btnPPConcern" data-IPQCNo="@Model.IPQCNo">Approve</button>
+        </div>
+
+    }
+
+
+
+
+
+    @if ((Model.StatusId == 14)
+        && ((Model.PLN_groupid == int.Parse(Session["UserGroupId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 5)
+        || (ViewBag.pln_dept == int.Parse(Session["UserDeptId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 6)
+        || (ViewBag.pln_plant == int.Parse(Session["UserPlantId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 7))
+        )
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Planning Section
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Comment : </span><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <textarea id="PLNComment" name="PLNComment" class="form-control input_box"></textarea>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12" style="text-align: center">
+            <button type="submit" class="btn btn-success btn_padding btn_top_space" id="btnPLNConcern" data-IPQCNo="@Model.IPQCNo">Approve</button>
+        </div>
+
+    }
+
+
+
+
+    @if (Model.StatusId == 15 && (Model.Engineer == Session["IPQCUsr"].ToString() || Model.IssueBy == Session["IPQCUsr"].ToString()))
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Project Owner
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Comment : </span><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <textarea id="EngComment" name="EngComment" class="form-control input_box"></textarea>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12" style="text-align: center">
+            
+            <button type="submit" class="btn btn-success btn_padding btn_top_space" id="btnEngReview" data-IPQCNo="@Model.IPQCNo">Confirm</button>
+        </div>
+
+    }
+
+    @if (Model.StatusId == 5 &&
+      (Model.EngMgr == Session["IPQCUsr"].ToString()
+      || (ViewBag.eng_dept == int.Parse(Session["UserDeptId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 6)
+      || (ViewBag.eng_plant == int.Parse(Session["UserPlantId"].ToString()) && int.Parse(Session["IPQCUserLevel"].ToString()) == 7)
+      ))
+    {
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+
+                <h2 style="margin-top:50px">
+                    Conclusion
+                </h2>
+
+                <hr>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+
+            <div class="col-lg-12 col-xs-12">
+                <span class="text_span">Comment : </span><br />
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <textarea id="EngMgrComment" name="EngMgrComment" class="form-control input_box">@if (ViewBag.EngLogs != null)
+                    {
+                        @ViewBag.EngLogs.Comment
+                    }</textarea>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12" style="text-align: center">
+            <button type="button" class="btnMgrClose btn btn-success btn_padding btn_top_space" id="btnMgrCloseOk" data-IPQCNo="@Model.IPQCNo" data-Action="OK">OK</button>
+            <button type="button" class="btnMgrClose btn btn-danger btn_padding btn_space btn_top_space" id="btnMgrCloseNG" data-IPQCNo="@Model.IPQCNo" data-Action="NG">NG</button>
+        </div>
+
+    }
+
+
+    @if (ViewBag.IPQC.StatusId != 8
+    && ViewBag.IPQC.StatusId != 9
+    && (ViewBag.IPQC.IssueBy == Session["IPQCUsr"].ToString() || ViewBag.IPQC.Engineer == Session["IPQCUsr"].ToString()))
+    {
+        <div class="col-lg-12 col-xs-12">
+            <div class="col-lg-12 col-xs-12">
+                <br />
+                <br />
+                <hr>
+
+            </div>
+            <div class="col-12 col-sm-12" style="text-align: center">
+
+                <button type="button" id="btnCancel" class="btnCancel btn btn-danger btn_padding" data-IPQCNo="@ViewBag.IPQC.IPQCNo">Cancel IPQC</button>
+            </div>
+        </div>
+    }
+
+    <div class="col-lg-12 col-xs-12">
+
+        <div class="col-lg-12 col-xs-12">
+
+            <h2 style="margin-top:50px">
+                Transaction  Detail
+            </h2>
+
+            <hr>
+
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-sm-12">
+        <div class="col-lg-12 col-xs-12">
+            <table id="blue_table">
+                <thead>
+                    <tr>
+                        <th width="25%">Operation</th>
+                        <th width="15%">Date Time</th>@*เพิ่มเวลา*@
+                        <th width="25%">By</th>
+                        <th width="35%">Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in ViewBag.log)
+                    {
+                        //ถ้าPE Mgr.ยังไม่ Approve จะไม่โชว์ PE Concern ใน Transaction
+                        if (item.operation == "PE Concern" && Model.StatusId == 12)
+                        {
+                        }
+                        else
+                        {
+                            <tr>
+
+                                <td>@item.operation</td>
+
+                                <td>
+                                    @item.opdate
+                                </td>
+                                <td>@item.actor</td>
+                                @if (item.comment != null && item.comment != "")
+                                {
+                                    <td>@item.comment</td>
+                                }
+                                else
+                                {
+                                    <td>-</td>
+                                }
+
+                            </tr>
+                        }
+
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+<div id="dialog-Cancel" title="Cancel IPQC">
+    Please enter cancel reason<br />
+    <textarea rows="5" name="txtCancel" id="txtCancel"></textarea>
+</div>
+
+<div id="dialog-Comment" title="Comment to Engineer">
+    Comment<br />
+    <textarea rows="5" name="txtComment" id="txtComment"></textarea>
+</div>
